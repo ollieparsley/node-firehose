@@ -13,7 +13,7 @@ Creating a firehose for your data can be a daunting propect. You can create one 
 * Retry logic support. If the service is taken down and restarted, you will quite likey get a stampede of connections. So some checks need to be made to save yourself from being repeatedly hit by the same customer.
 * Support HTTP and WebSocket connections in parallel
 
-These services are by nature very long lived processes. Any errors will affect all customers connected. I ([OllieParsley](http://ollieparsley.com/)) has experience handling the Twitter firehose and also developing the [DataSift](http://datasift.com/) HTTP Streaming API, which behaves in a similar way to the Twitter Streaming API
+These services are by nature very long lived processes. Any errors will affect all customers connected. I ([OllieParsley](http://ollieparsley.com/)) have experience handling the Twitter firehose and also developing the [DataSift](http://datasift.com/) HTTP Streaming API, which behaves in a similar way to the Twitter Streaming API
 
 # Out the box
 
