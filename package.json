@@ -1,8 +1,8 @@
 {
 	"name": "firehose",
 	"version": "0.0.1",
-	"author": "Hootware Ltd <hello@hootware.com>",
 	"description": "Create an HTTP and WebSocket JSON firefose from anything!",
+	"author": "Ollie Parsley <ollie@ollieparsley.com>",
 	"contributors": [ 
 		{
 			"name": "Ollie Parsley",
@@ -10,7 +10,6 @@
 		} 
 	],
 	"keywords": [
-		"hootware",
 		"ollieparsley",
 		"firehose",
 		"websockets",
@@ -20,6 +19,11 @@
 		"realtime",
 		"real-time"
 	],
+	"repository": {
+		"type" : "git",
+		"url" : "http://github.com/ollieparsley/node-firehose.git"
+	},
+	"main": "index.js",
 	"dependencies" : {
 		
 	}
