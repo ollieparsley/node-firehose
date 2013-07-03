@@ -2,8 +2,9 @@ var firehose = {
 	Authentication: require("./lib/authentication/base").Authentication,
 	Client:         require("./lib/user/base").Client,
 	Router:         require("./lib/router/base").Router,
+	Source:         require("./lib/source/base").Source,
 	Store:          require("./lib/store/base").Store,
-	Transport:      require("./lib/authentication/base").Transport,
+	Transport:      require("./lib/transport/base").Transport,
 	User:           require("./lib/user/base").User,
 	createServer:   createServer
 };
@@ -12,11 +13,16 @@ module.exports = firehose;
 
 function createServer(options, callback) {
 	
+	//Check the source
+	if (!options.source) {
+		throw new Error("A source needs to be set");
+	} else if (!(options.source instanceof firehose.Source)) {
+		throw new Error("The source must be an instance of Source");
+	}
+	
 	//Check the transport
 	if (!options.transport) {
 		throw new Error("A transport needs to be set");
-	} else if (!(options.transport instanceof firehose.Transport)) {
-		throw new Error("The transport must be an instance of Transport");
 	}
 	
 	//Check the router
@@ -37,13 +43,16 @@ function createServer(options, callback) {
 	
 	//Check the store
 	if (!options.store) {
-		throw new Error("A store needs to be set");
+		options.store = new firehose.Store();
 	} else if (!(options.store instanceof firehose.Store)) {
 		throw new Error("The store must be an instance of Store");
 	}
 	
+	//Start the source
+	options.source.start();
+	
 	//Now create the transport server
-	var transportServer = options.transport.createServer(function(transport) {
+	var transportServer = options.transport.class.createServer(options.transport.config, function(transport) {
 		
 		//Check we have a route match
 		if (!options.router.check(transport)) {
@@ -75,7 +84,6 @@ function createServer(options, callback) {
 			
 			//Get topics
 			var topics = options.router.getTopics(transport);
-			var subscriptions = {};
 			topics.forEach(function(topic){
 				//Add subscriptions for client
 				client.addTopic(topic);
@@ -83,9 +91,7 @@ function createServer(options, callback) {
 
 			//From the transport get a user
 			callback(client)
-		});
-		
-		
+		});	
 		
 	});
 	
