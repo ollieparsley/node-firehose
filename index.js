@@ -58,8 +58,32 @@ function createServer(options, callback) {
 	//Clients
 	var clients = {};
 	
+	//If we have a max buffer size confit then check it every 10 seconds
+	var bufferCheckInterval = null;
+	if (options.config && options.config.max_buffer_size) {
+		bufferCheckInterval = setInterval(function(){
+			Object.keys(clients).forEach(function(clientId){
+				var client = clients[clientId];
+				var transport = client.getTransport();
+				if (transport) {
+					var socket = transport.getSocket();
+					if (socket && socket.bufferSize && socket.bufferSize > options.config.max_buffer_size) {
+						client.sendError("You are consuming too slowy and have been disconnected", 400)
+					}
+				}
+			});
+		}, 10 * 1000);
+	}
+	
 	//Now create the transport server
 	var transportServer = options.transport.createServer(options.transport.config, function(transport) {
+		//Check to see if we are the max connections
+		if (options.config && options.config.max_concurrent_connections <= Object.keys(clients).length) {
+			//We are at capacity
+			transport.sendError("The service has reached capacity", 503);
+			transport.close();
+			return;
+		}
 		
 		//Check we have a route match
 		if (!options.router.check(transport)) {
@@ -126,6 +150,11 @@ function createServer(options, callback) {
 			
 			//Close the server itself
 			transportServer.close();
+			
+			//Stop the buffer check
+			if (bufferCheckInterval !== null) {
+				clearInterval(bufferCheckInterval);
+			}
 		},
 		clients: clients
 	};

@@ -122,6 +122,13 @@ HttpTransport.prototype.sendTick = function() {
 };
 
 /**
+ * Get socket
+ */
+HttpTransport.prototype.getSocket = function() {
+	return this.response && this.response.socket ? this.response.socket : false;
+};
+
+/**
  * Create server
  */
 function createServer(config, callback) {

@@ -8,6 +8,10 @@ var JsonStore = require("./json_store").Store;
 
 //Firehose server options
 var options = {
+	config: {
+		max_buffer_size:            1048576,
+		max_concurrent_connections: 1024
+	},
 	
 	//The base source which sends fake data every 2 seconds
 	source: new firehose.Source(),
@@ -19,10 +23,8 @@ var options = {
 		
 		//The configuration send to createServer each time it is called
 		config: {
-			port:                       1338, 
-			host:                       "0.0.0.0",
-			max_buffer_size:            1048576,
-			max_concurrent_connections: 64
+			port: 1337, 
+			host: "0.0.0.0"
 		}
 	},
 	
