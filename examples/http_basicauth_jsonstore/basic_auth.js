@@ -1,5 +1,5 @@
 var util = require("util");
-var Authentication = require("../index").Authentication;
+var Authentication = require("../../index").Authentication;
 
 /**
  * Basic auth auth
@@ -28,7 +28,7 @@ BasicAuthentication.prototype.getCredentials = function(transport) {
 	
 	//Now get the username and password
 	var encodedCredentials = headerValue.substr(6);
-	var credentials = atob(encodedCredentials);
+	var credentials = new Buffer(encodedCredentials, 'base64').toString('utf8');
 	
 	//Now check to see if the credentials contains a colon
 	if (credentials.indexOf(":") < 0) {

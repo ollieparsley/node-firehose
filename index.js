@@ -1,6 +1,6 @@
 var firehose = {
 	Authentication: require("./lib/authentication/base").Authentication,
-	Client:         require("./lib/user/base").Client,
+	Client:         require("./lib/client/base").Client,
 	Router:         require("./lib/router/base").Router,
 	Source:         require("./lib/source/base").Source,
 	Store:          require("./lib/store/base").Store,
@@ -23,6 +23,10 @@ function createServer(options, callback) {
 	//Check the transport
 	if (!options.transport) {
 		throw new Error("A transport needs to be set");
+	} else if (!options.transport.createServer) {
+		throw new Error("A transport createServer needs to be set");
+	} else if (!options.transport.config) {
+		throw new Error("A transport config needs to be set");
 	}
 	
 	//Check the router
@@ -51,8 +55,11 @@ function createServer(options, callback) {
 	//Start the source
 	options.source.start();
 	
+	//Clients
+	var clients = {};
+	
 	//Now create the transport server
-	var transportServer = options.transport.class.createServer(options.transport.config, function(transport) {
+	var transportServer = options.transport.createServer(options.transport.config, function(transport) {
 		
 		//Check we have a route match
 		if (!options.router.check(transport)) {
@@ -63,7 +70,7 @@ function createServer(options, callback) {
 		
 		//Now check the authentication
 		var credentials = options.authentication.getCredentials(transport);
-		if (!credentials) {
+		if (credentials instanceof Error) {
 			transport.sendError("Not authorized", 401);
 			transport.close();
 			return;
@@ -74,13 +81,22 @@ function createServer(options, callback) {
 			
 			//Check if we have an error
 			if (error) {
-				transport.sendError(error.message, 400);
+				transport.sendError(error.message, 401);
 				transport.close();
 				return;
 			}
 			
 			//Create a new client
-			var client = new firehose.Client(transport, source, user);
+			var client = new firehose.Client(transport, options.source, user);
+			
+			//Add client to client list
+			clients[client.getId()] = client;
+			
+			//Remove client from list
+			client.on("close", function(){
+				clients[client.getId()] = null;
+				delete clients[client.getId()];
+			});
 			
 			//Get topics
 			var topics = options.router.getTopics(transport);
@@ -103,7 +119,14 @@ function createServer(options, callback) {
 			} else {
 				listenCallback();
 			}
-		}
-	}
-	;
+		},
+		close: function(){
+			//Stop the source
+			options.source.stop();
+			
+			//Close the server itself
+			transportServer.close();
+		},
+		clients: clients
+	};
 }

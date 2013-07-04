@@ -1,16 +1,16 @@
 node-firehose
 =============
 
-Create an HTTP or WebSocket JSON firefose from anything!
+Create a firefose from anything!
 
 # Background
 
 Creating a firehose for your data can be a daunting propect. You can create one fairly simply, but there are alot of other factors to take into accont.
 
 * What happens if a user is on a slow connection? Memory usage will shoot up as the socket is buffered
-* Different autentication methods
+* Different authentication methods
 * Making it stable. You don't want to kick off happy customers, just because one customer has an error/exception
-* Support different transports such as HTTP or WebSockets
+* Support different transports, user storage, authentication, routes and sources
 
 These services, by their very nature, are long lived processes. Any errors will affect all customers connected. I ([OllieParsley](http://ollieparsley.com/)) have experience handling the Twitter firehose and also developing the [DataSift](http://datasift.com/) HTTP Streaming API, which behaves in a similar way to the Twitter Streaming API
 
@@ -20,21 +20,24 @@ The firehose server is made up of a few big components. These can mostly be comb
 
 ## Transports
 
-Transports are the different communication methods you have with the user. Out-of-the-box we have support for:
-
-* HTTP
-* WebSockets
+Transports are the different communication methods you have with the user. In the examples directory you will find a ready made HTTP Transport component
 
 ## Authentication
 
-With these two transport methods they use similar request/response flows. Because of this they can both use the 2 built in authentication methods
-
-* None (literally no authentication checks done at all)
-* Basic (username:password combinations sent in the Authorization header)
+It is really easy to customise how users are authenticated. This takes care of extracting credentials from a request. The default authentication doesn't check any credentials. In the examples directory you will find a Basic Authentication component.
 
 ## Stores
 
-Stores are how we check that a users credentials are valid and return any extra details from the user. To start with we only support one type:
+Once the firehose server has grabbed credentials (if any) they are passed along to a store and expects a User object in response. The default Store returns a randomly generated user. In the examples directory you can find a JSON Store which has all users stored in a JSON file.
 
-* JSON file
+## Router
 
+Routers are used to make sure the path specified in a request is correct. The default router allows all requests through.
+
+## Source
+
+Arguably the most important component. This is the element that receives your own data and passes it to users. The default source sends a bit of JSON every 2 seconds.
+
+# Creating your own components
+
+You can create your components by extending our base classes. Check out the examples directory for how to do this. Essentially you include out base class for a component and extend any of the methods using prototype inheritance.

@@ -1,5 +1,5 @@
 var util = require("util");
-var firehose = require("../index");
+var firehose = require("../../index");
 var Store = firehose.Store;
 var User = firehose.User;
 
@@ -11,7 +11,7 @@ function FileStore(config) {
 	Store.call(this, config);
 	
 	//Users
-	this.users = require(config.user_path);
+	this.users = require(config.path);
 }
 util.inherits(FileStore, Store);
 
@@ -31,6 +31,11 @@ FileStore.prototype.getUserFromCredentials = function(credentials, callback) {
 			item = userItem;
 		}
 	});
+	
+	//Check for null user
+	if (item === null) {
+		return callback(new Error("Username not found"));
+	}
 	
 	//Check the password is correct
 	if (item.password !== credentials.password) {

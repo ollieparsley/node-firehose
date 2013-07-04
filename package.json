@@ -24,7 +24,5 @@
 		"url" : "http://github.com/ollieparsley/node-firehose.git"
 	},
 	"main": "index.js",
-	"dependencies" : {
-		
-	}
+	"dependencies" : {}
 }

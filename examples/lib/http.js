@@ -5,8 +5,8 @@ var Transport = require("../../index.js").Transport;
  * HTTP transport
  * 
  */
-function HttpTransport(config, authentication, request, response) {
-	Transport.call(this, config, authentication);
+function HttpTransport(config, request, response) {
+	Transport.call(this, config);
 	
 	//Request
 	this.request = request;
@@ -28,8 +28,11 @@ function HttpTransport(config, authentication, request, response) {
 	//Headers
 	this.headers = {
 		"Content-Type": "application/json",
-		"X-ServedBy": "node-firehose"
+		"X-Served-By": "node-firehose"
 	};
+	
+	//Header sent
+	this.headersSent = false;
 	
 	//Closed
 	this.closed = false;
@@ -51,8 +54,7 @@ HttpTransport.prototype.start = function(success, message, statusCode) {
 	if (success) {
 		this.response.writeHead(200, this.headers);
 	} else {
-		this.response.writeHead(statusCode, this.headers);
-		this.response.writeItem({"errors": [{code: statusCode, message: message}]});
+		this.response.sendError(message, statusCode);
 		this.response.close();
 	}
 	throw new Error("Not implemented");
@@ -66,10 +68,38 @@ HttpTransport.prototype.getHeaders = function() {
 };
 
 /**
+ * Send item
+ */
+HttpTransport.prototype.sendItem = function(topic, item) {
+	item.topic = topic;
+	console.log("Item: ", topic, item);
+	this.write(item);
+};
+
+/**
+ * Send error
+ */
+HttpTransport.prototype.sendError = function(message, statusCode) {
+	this.sendHeaders(statusCode ? statusCode : 500, this.headers);
+	this.write({"message": message});
+};
+
+/**
+ * Send headers
+ */
+HttpTransport.prototype.sendHeaders = function(statusCode, headers) {
+	if (!this.headersSent) {
+		this.headersSent = true;
+		this.response.writeHead(statusCode, headers);
+	}
+};
+
+/**
  * Write item
  */
-HttpTransport.prototype.writeItem = function(item) {
-	this.response.write(JSON.stringify(item) + "\r\n");
+HttpTransport.prototype.write = function(object) {
+	this.sendHeaders(200, this.headers);
+	this.response.write(JSON.stringify(object) + "\r\n");
 };
 
 /**
@@ -78,15 +108,17 @@ HttpTransport.prototype.writeItem = function(item) {
 HttpTransport.prototype.close = function() {
 	if (!this.closed) {
 		this.closed = true;
-		this.response.close();
+		this.response.end();
 	}
+	this.emit("close");
 };
 
 /**
  * Send tick
  */
 HttpTransport.prototype.sendTick = function() {
-	this.writeItem({"tick": parseInt(new Date().getTime() / 1000, 10)});
+	var topic = '';
+	this.sendItem(topic, {"tick": parseInt(new Date().getTime() / 1000, 10)});
 };
 
 /**
@@ -107,9 +139,11 @@ function createServer(config, callback) {
 				config.host ? config.host : callback, //Specify the host or just the callback if the host is not specified
 				config.host ? callback : undefined    //Specify the callback if the host is specified
 			);
+		},
+		close: function(callback) {
+			server.close(callback);
 		}
 	}
-	
 	
 };
 
