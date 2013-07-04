@@ -71,8 +71,6 @@ HttpTransport.prototype.getHeaders = function() {
  * Send item
  */
 HttpTransport.prototype.sendItem = function(topic, item) {
-	item.topic = topic;
-	console.log("Item: ", topic, item);
 	this.write(item);
 };
 
