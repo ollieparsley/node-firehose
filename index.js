@@ -18,8 +18,8 @@ var firehose = {
 	},
 	transport: {
 		Base:     require("./lib/transport/base"),
-		Http:     require("./lib/transport/http")
-		//Websocket: require("./lib/transport/websocket").Transport
+		Http:     require("./lib/transport/http"),
+		Websocket: require("./lib/transport/websocket")
 	},
 	user: {
 		Base:     require("./lib/user/base").User
@@ -46,8 +46,6 @@ function createServer(options, callback) {
 		throw new Error("A transport needs to be set");
 	} else if (!options.transport.createServer) {
 		throw new Error("The transport must have a createServer method");
-	//} else if (!(options.transport.Transport instanceof firehose.transport.Base.Transport)) {
-	//	throw new Error("The transport must be an instance of transport");
 	}
 
 	//Check the router
@@ -181,7 +179,4 @@ function createServer(options, callback) {
 	};
 }
 
-console.log("FH: ", firehose);
-
 exports = module.exports = firehose;
-//exports = module.exports = {"a":"b"};

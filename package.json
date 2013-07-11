@@ -24,5 +24,7 @@
 		"url" : "http://github.com/ollieparsley/node-firehose.git"
 	},
 	"main": "index.js",
-	"dependencies" : {}
+	"dependencies" : {
+		"websocket.io": "0.2.1"
+	}
 }
