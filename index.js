@@ -1,54 +1,74 @@
 var firehose = {
-	Authentication: require("./lib/authentication/base").Authentication,
-	Client:         require("./lib/client/base").Client,
-	Router:         require("./lib/router/base").Router,
-	Source:         require("./lib/source/base").Source,
-	Store:          require("./lib/store/base").Store,
-	Transport:      require("./lib/transport/base").Transport,
-	User:           require("./lib/user/base").User,
+	authentication: {
+		Base:      require("./lib/authentication/base").Authentication,
+		BasicAuth: require("./lib/authentication/basic").Authentication
+	},
+	router: {
+		Base:      require("./lib/router/base").Router,
+		AllowAll:  require("./lib/router/allow_all").Router
+	},
+	source: {
+		Base:      require("./lib/source/base").Source,
+		Fake:      require("./lib/source/fake").Source
+	},
+	store: {
+		Base:      require("./lib/store/base").Store,
+		JsonFile:  require("./lib/store/json_file").Store
+	},
+	transport: {
+		Base:      require("./lib/transport/base"),
+		Http:      require("./lib/transport/http")
+		//Websocket: require("./lib/transport/websocket").Transport
+	},
+	user: {
+		Base:      require("./lib/user/base").User
+	},
+	client: {
+		Base:      require("./lib/client/base").Client
+	},
 	createServer:   createServer
 };
-
-module.exports = firehose;
 
 function createServer(options, callback) {
 	
 	//Check the source
 	if (!options.source) {
 		throw new Error("A source needs to be set");
-	} else if (!(options.source instanceof firehose.Source)) {
+	} else if (!(options.source instanceof firehose.source.Base)) {
 		throw new Error("The source must be an instance of Source");
 	}
 	
 	//Check the transport
+	//console.log("\n\n", options.transport.Transport, firehose.transport.Base.Transport, "\n\n");
+	//process.exit();
 	if (!options.transport) {
 		throw new Error("A transport needs to be set");
 	} else if (!options.transport.createServer) {
-		throw new Error("A transport createServer needs to be set");
-	} else if (!options.transport.config) {
-		throw new Error("A transport config needs to be set");
+		throw new Error("The transport must have a createServer method");
+	//} else if (!(options.transport.Transport instanceof firehose.transport.Base.Transport)) {
+	//	throw new Error("The transport must be an instance of transport");
 	}
-	
+
 	//Check the router
 	if (!options.router) {
 		//Choose a router that allows all through
-		options.router = new firehose.Router();
-	} else if (!(options.router instanceof firehose.Router)) {
+		options.router = new firehose.router.AllowAll();
+	} else if (!(options.router instanceof firehose.router.Base)) {
 		throw new Error("The router must be an instance of Router");
 	}
 	
 	//Check the authentication
 	if (!options.authentication) {
 		//Choose the default authentication
-		options.authentication = new firehose.Authentication();
-	} else if (!(options.authentication instanceof firehose.Authentication)) {
+		options.authentication = new firehose.authentication.Base();
+	} else if (!(options.authentication instanceof firehose.authentication.Base())) {
 		throw new Error("The authentication must be an instance of Authentication");
 	}
 	
 	//Check the store
 	if (!options.store) {
-		options.store = new firehose.Store();
-	} else if (!(options.store instanceof firehose.Store)) {
+		options.store = new firehose.store.Base();
+	} else if (!(options.store instanceof firehose.store.Base)) {
 		throw new Error("The store must be an instance of Store");
 	}
 	
@@ -76,7 +96,7 @@ function createServer(options, callback) {
 	}
 	
 	//Now create the transport server
-	var transportServer = options.transport.createServer(options.transport.config, function(transport) {
+	var transportServer = options.transport.createServer(options.config.transport, function(transport) {
 		//Check to see if we are the max connections
 		if (options.config && options.config.max_concurrent_connections <= Object.keys(clients).length) {
 			//We are at capacity
@@ -111,7 +131,7 @@ function createServer(options, callback) {
 			}
 			
 			//Create a new client
-			var client = new firehose.Client(transport, options.source, user);
+			var client = new firehose.client.Base(transport, options.source, user);
 			
 			//Add client to client list
 			clients[client.getId()] = client;
@@ -159,3 +179,8 @@ function createServer(options, callback) {
 		clients: clients
 	};
 }
+
+console.log("FH: ", firehose);
+
+exports = module.exports = firehose;
+//exports = module.exports = {"a":"b"};
