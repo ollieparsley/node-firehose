@@ -1,6 +1,4 @@
-var firehose = require("../../index");
-
-console.log(firehose);
+var firehose = require("../../index"); //This would be require("firehose");
 
 //Firehose server options
 var options = {
@@ -33,5 +31,7 @@ var server = firehose.createServer(options, function(client) {
 });
 
 //Start the server listening
-server.listen();
+server.listen(function(){
+	console.log ("Firehose server is now listening");
+});
 

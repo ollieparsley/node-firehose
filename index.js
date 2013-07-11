@@ -1,30 +1,31 @@
 var firehose = {
 	authentication: {
-		Base:      require("./lib/authentication/base").Authentication,
-		BasicAuth: require("./lib/authentication/basic").Authentication
+		Base:     require("./lib/authentication/base").Authentication,
+		Basic:    require("./lib/authentication/basic").Authentication,
+		AllowAll: require("./lib/authentication/allow_all").Authentication
 	},
 	router: {
-		Base:      require("./lib/router/base").Router,
-		AllowAll:  require("./lib/router/allow_all").Router
+		Base:     require("./lib/router/base").Router,
+		AllowAll: require("./lib/router/allow_all").Router
 	},
 	source: {
-		Base:      require("./lib/source/base").Source,
-		Fake:      require("./lib/source/fake").Source
+		Base:     require("./lib/source/base").Source,
+		Fake:     require("./lib/source/fake").Source
 	},
 	store: {
-		Base:      require("./lib/store/base").Store,
-		JsonFile:  require("./lib/store/json_file").Store
+		Base:     require("./lib/store/base").Store,
+		JsonFile: require("./lib/store/json_file").Store
 	},
 	transport: {
-		Base:      require("./lib/transport/base"),
-		Http:      require("./lib/transport/http")
+		Base:     require("./lib/transport/base"),
+		Http:     require("./lib/transport/http")
 		//Websocket: require("./lib/transport/websocket").Transport
 	},
 	user: {
-		Base:      require("./lib/user/base").User
+		Base:     require("./lib/user/base").User
 	},
 	client: {
-		Base:      require("./lib/client/base").Client
+		Base:     require("./lib/client/base").Client
 	},
 	createServer:   createServer
 };
@@ -61,7 +62,7 @@ function createServer(options, callback) {
 	if (!options.authentication) {
 		//Choose the default authentication
 		options.authentication = new firehose.authentication.Base();
-	} else if (!(options.authentication instanceof firehose.authentication.Base())) {
+	} else if (!(options.authentication instanceof firehose.authentication.Base)) {
 		throw new Error("The authentication must be an instance of Authentication");
 	}
 	
