@@ -10,7 +10,8 @@ var firehose = {
 	},
 	source: {
 		Base:     require("./lib/source/base").Source,
-		Fake:     require("./lib/source/fake").Source
+		Fake:     require("./lib/source/fake").Source,
+		ZeroMQ:   require("./lib/source/zeromq").Source
 	},
 	store: {
 		Base:     require("./lib/store/base").Store,
@@ -79,6 +80,19 @@ function createServer(options, callback) {
 	
 	//Topics - ref counts
 	var topics = {};
+	
+	//Ticks
+	var tickIntervalSeconds = options.config && options.config.tick_interval ? options.config.tick_interval : 30.
+	var tickInterval = setInterval(function(){
+		var now = parseInt(new Date().getTime() / 1000);
+		Object.keys(clients).forEach(function(clientId){
+			var client = clients[clientId];
+			if (now - client.lastItem > tickIntervalSeconds) {
+				//Client hasn't received data for over x seconds so send a tick
+				client.getTransport().sendTick();
+			}
+		});
+	}, tickIntervalSeconds * 1000);
 	
 	//If we have a max buffer size confit then check it every 10 seconds
 	var bufferCheckInterval = null;
@@ -209,6 +223,11 @@ function createServer(options, callback) {
 			//Stop the buffer check
 			if (bufferCheckInterval !== null) {
 				clearInterval(bufferCheckInterval);
+			}
+			
+			//Clear tick interval
+			if (tickInterval !== null) {
+				clearInterval(tickInterval);
 			}
 		},
 		clients: clients
