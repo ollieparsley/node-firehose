@@ -77,6 +77,9 @@ function createServer(options, callback) {
 	//Clients
 	var clients = {};
 	
+	//Topics - ref counts
+	var topics = {};
+	
 	//If we have a max buffer size confit then check it every 10 seconds
 	var bufferCheckInterval = null;
 	if (options.config && options.config.max_buffer_size) {
@@ -141,7 +144,40 @@ function createServer(options, callback) {
 				delete clients[client.getId()];
 			});
 			
-			//Get topics
+			//Client added a topic
+			client.on("add_topic", function(topic){
+				console.log("Client added topic: " + topic);
+				if (topics[topic] === undefined) {
+					//Add the topic to the list
+					topics[topic] = {count:1};
+					
+					//New topic so tell the source to add it
+					options.source.addTopic(topic);
+				} else {
+					//Increment the ref count
+					topics[topic].count++;
+				}
+			});
+			
+			//Client removed a topic
+			client.on("remove_topic", function(topic){
+				console.log("Client removed topic: " + topic);
+				//Check if we have the topic at all
+				if (topics[topic] === undefined) {
+					return;
+				}
+				
+				//Decrement
+				topics[topic].count--;
+				
+				//Check if none left
+				if (topics[topic].count <= 0) {
+					//Remove the topic as there is nothing listening
+					options.source.removeTopic(topic);
+				}
+			});
+			
+			//Get topics from initial connection
 			var topics = options.router.getTopics(transport);
 			topics.forEach(function(topic){
 				//Add subscriptions for client
