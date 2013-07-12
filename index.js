@@ -11,7 +11,8 @@ var firehose = {
 	source: {
 		Base:     require("./lib/source/base").Source,
 		Fake:     require("./lib/source/fake").Source,
-		ZeroMQ:   require("./lib/source/zeromq").Source
+		ZeroMQ:   require("./lib/source/zeromq").Source,
+		MQTT:     require("./lib/source/mqtt").Source
 	},
 	store: {
 		Base:     require("./lib/store/base").Store,

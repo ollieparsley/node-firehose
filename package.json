@@ -26,6 +26,7 @@
 	"main": "index.js",
 	"dependencies" : {
 		"websocket.io": "0.2.1",
-		"zmq": "2.4.0"
+		"zmq": "2.4.0",
+		"mqtt": "0.2.10"
 	}
 }
