@@ -17,7 +17,10 @@
 		"http",
 		"chunked",
 		"realtime",
-		"real-time"
+		"real-time",
+		"mqtt",
+		"zeromq",
+		"zmq"
 	],
 	"repository": {
 		"type" : "git",
@@ -27,6 +30,7 @@
 	"dependencies" : {
 		"websocket.io": "0.2.1",
 		"zmq": "2.4.0",
-		"mqtt": "0.2.10"
+		"mqtt": "0.2.10",
+		"tail": "0.3.1"
 	}
 }
