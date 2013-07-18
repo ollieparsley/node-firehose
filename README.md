@@ -19,7 +19,7 @@ These services, by their very nature, are long lived processes. Any errors will 
 ### NPM
 
 ```bash
-npm install tail
+npm install firehose
 ```
 
 ### Source
