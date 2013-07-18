@@ -1,12 +1,12 @@
 {
 	"name": "firehose",
 	"version": "0.0.1",
-	"description": "Create an HTTP and WebSocket JSON firefose from anything!",
+	"description": "Create an HTTP and WebSocket firefose from anything!",
 	"author": "Ollie Parsley <ollie@ollieparsley.com>",
 	"contributors": [ 
 		{
 			"name":  "Ollie Parsley",
-			"email": "ollie@hootware.com"
+			"email": "ollie@ollieparsley.com"
 		} 
 	],
 	"keywords": [
