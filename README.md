@@ -1,6 +1,9 @@
 node-firehose
 =============
 
+## This repo os archived. For a similar project checkput https://benthos.dev
+
+
 Create a firefose from anything!
 
 ## Background
